@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"strings"
 
 	"github.com/evg4b/vk-archive-assets-downloader/internal"
+	"github.com/evg4b/vk-archive-assets-downloader/internal/common"
 )
 
 func main() {
@@ -15,8 +16,8 @@ func main() {
 
 	flag.Parse()
 
-	app := internal.NewDownloader(*src, *dest, strings.Split(*dialogs, ","), strings.Split(*types, ","))
-	err := app.Run()
+	app := internal.NewDownloader(*src, *dest, common.SplitNotEmpty(*dialogs), common.SplitNotEmpty(*types))
+	err := app.Run(context.TODO())
 	if err != nil {
 		panic(err)
 	}
