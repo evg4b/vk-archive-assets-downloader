@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/cheggaaa/pb"
@@ -24,17 +23,19 @@ func NewDownloader(src, dest string, dialogs, types []string) *Downloader {
 	dataChanel := make(chan common.Attachemt)
 	wg := sync.WaitGroup{}
 
+	attachemtPb := pb.New(0).Prefix("Attachments")
+	dialogsPb := pb.New(0).Prefix("Dialogs")
+	dialogPagesPb := pb.New(0).Prefix("Dialog pages")
+
 	return &Downloader{
 		wg:            &wg,
-		attachemtPb:   pb.New(0).Prefix("Attachments"),
-		dialogsPb:     pb.New(0).Prefix("Dialogs"),
-		dialogPagesPb: pb.New(0).Prefix("Dialog pages"),
-		parser: &parser.Parser{
-			Path:   src,
-			Ids:    dialogs,
-			Output: dataChanel,
-			Wg:     &wg,
-		},
+		attachemtPb:   attachemtPb,
+		dialogsPb:     dialogsPb,
+		dialogPagesPb: dialogPagesPb,
+		parser: parser.NewParser(&wg, src, dialogs, dataChanel).
+			WithAttachemtProgressBar(attachemtPb).
+			WithDialogPagesProgressBar(dialogPagesPb).
+			WithDialogsProgressBar(dialogsPb),
 		loader: &loader.Loader{
 			Input: dataChanel,
 			Dest:  dest,
@@ -51,15 +52,8 @@ func (d *Downloader) Run(ctx context.Context) error {
 
 	defer pool.Stop()
 
-	folders, err := d.parser.Load(ctx)
-	if err != nil {
-		return err
-	}
-
-	fmt.Print(folders)
-
 	d.wg.Add(2)
-	go d.parser.Parse(ctx, folders)
+	go d.parser.Parse(ctx)
 	go d.loader.Load(ctx)
 
 	d.wg.Wait()
