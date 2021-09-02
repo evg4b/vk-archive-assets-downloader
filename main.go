@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"github.com/evg4b/vk-archive-assets-downloader/internal"
 	"github.com/evg4b/vk-archive-assets-downloader/internal/common"
@@ -16,9 +20,24 @@ func main() {
 
 	flag.Parse()
 
+	logfile := openLogFile()
+	defer logfile.Close()
+
+	log.SetOutput(logfile)
+
 	app := internal.NewDownloader(*src, *dest, common.SplitNotEmpty(*dialogs), common.SplitNotEmpty(*types))
 	err := app.Run(context.TODO())
 	if err != nil {
 		panic(err)
 	}
+}
+
+func openLogFile() *os.File {
+	logfile := fmt.Sprintf("%s.log", time.Now().Format("20060102150405"))
+	file, err := os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+
+	return file
 }

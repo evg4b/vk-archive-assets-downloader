@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"log"
 	"sync"
 
 	"github.com/cheggaaa/pb"
@@ -26,6 +27,15 @@ func NewDownloader(src, dest string, dialogs, types []string) *Downloader {
 	attachemtPb := pb.New(0).Prefix("Attachments")
 	dialogsPb := pb.New(0).Prefix("Dialogs")
 	dialogPagesPb := pb.New(0).Prefix("Dialog pages")
+
+	log.Printf("Source: %s, Destination: %s", src, dest)
+	if dialogs != nil && len(dialogs) > 0 {
+		log.Printf("Dialogs: %x", dialogs)
+	}
+	if types != nil && len(types) > 0 {
+		log.Printf("Types: %x", types)
+	}
+	log.Println()
 
 	return &Downloader{
 		wg:            &wg,
