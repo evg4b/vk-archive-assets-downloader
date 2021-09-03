@@ -1,4 +1,4 @@
-package common
+package progressbar
 
 import "github.com/cheggaaa/pb"
 

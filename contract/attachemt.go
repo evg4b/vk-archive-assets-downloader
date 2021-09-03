@@ -1,4 +1,4 @@
-package common
+package contract
 
 type Attachemt struct {
 	Type       string

@@ -1,15 +1,15 @@
 package parser
 
 import (
-	"context"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"sync"
 
 	"github.com/cheggaaa/pb"
-	"github.com/evg4b/vk-archive-assets-downloader/internal/common"
+	"github.com/evg4b/vk-archive-assets-downloader/contract"
+	"github.com/evg4b/vk-archive-assets-downloader/utils/collections"
+	"github.com/evg4b/vk-archive-assets-downloader/utils/progressbar"
 )
 
 const dir = "messages"
@@ -17,14 +17,14 @@ const dir = "messages"
 type Parser struct {
 	path          string
 	ids           []string
-	output        chan<- common.Attachemt
+	output        chan<- contract.Attachemt
 	attachemtPb   *pb.ProgressBar
 	dialogsPb     *pb.ProgressBar
 	dialogPagesPb *pb.ProgressBar
 	wg            *sync.WaitGroup
 }
 
-func NewParser(wg *sync.WaitGroup, path string, ids []string, output chan<- common.Attachemt) *Parser {
+func NewParser(wg *sync.WaitGroup, path string, ids []string, output chan<- contract.Attachemt) *Parser {
 	return &Parser{
 		path:   path,
 		ids:    ids,
@@ -51,37 +51,6 @@ func (p *Parser) WithDialogPagesProgressBar(progressBar *pb.ProgressBar) *Parser
 	return p
 }
 
-func (p *Parser) Parse(ctx context.Context) {
-	defer p.wg.Done()
-	defer close(p.output)
-
-	dirs, err := p.load()
-	if err != nil {
-		panic(err)
-	}
-
-	log.Println("Parser started")
-
-	for _, dirPath := range dirs {
-		files, err := p.parseDialog(dirPath)
-		if err != nil {
-			log.Printf("ERROR: failed to read dis %s\n", dirPath)
-			continue
-		}
-
-		common.InitProgressBar(p.dialogPagesPb, len(files))
-		dialogName, err := p.getDialogName(files[0])
-		if err != nil {
-			log.Printf("ERROR: failed to read dis %s\n", dirPath)
-			continue
-		}
-
-		for _, filePath := range files {
-			p.processFile(dialogName, filePath)
-		}
-	}
-}
-
 func (p *Parser) load() ([]string, error) {
 	folderPath := path.Join(p.path, dir)
 	folders, err := os.ReadDir(folderPath)
@@ -91,12 +60,12 @@ func (p *Parser) load() ([]string, error) {
 
 	paths := []string{}
 	for _, folder := range folders {
-		if folder.IsDir() && common.IncludeOrEmpty(folder.Name(), p.ids) {
+		if folder.IsDir() && collections.IncludeOrEmpty(folder.Name(), p.ids) {
 			paths = append(paths, filepath.Join(folderPath, folder.Name()))
 		}
 	}
 
-	common.InitProgressBar(p.dialogsPb, len(paths))
+	progressbar.InitProgressBar(p.dialogsPb, len(paths))
 
 	return paths, nil
 }

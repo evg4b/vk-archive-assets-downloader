@@ -5,11 +5,11 @@ import (
 	"log"
 	"sync"
 
-	"github.com/evg4b/vk-archive-assets-downloader/internal/common"
+	"github.com/evg4b/vk-archive-assets-downloader/contract"
 )
 
 type Loader struct {
-	Input <-chan common.Attachemt
+	Input <-chan contract.Attachemt
 	Dest  string
 	Wg    *sync.WaitGroup
 }

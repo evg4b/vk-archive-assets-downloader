@@ -1,14 +1,13 @@
-package internal
+package application
 
 import (
-	"context"
 	"log"
 	"sync"
 
 	"github.com/cheggaaa/pb"
-	"github.com/evg4b/vk-archive-assets-downloader/internal/common"
-	"github.com/evg4b/vk-archive-assets-downloader/internal/loader"
-	"github.com/evg4b/vk-archive-assets-downloader/internal/parser"
+	"github.com/evg4b/vk-archive-assets-downloader/contract"
+	"github.com/evg4b/vk-archive-assets-downloader/loader"
+	"github.com/evg4b/vk-archive-assets-downloader/parser"
 )
 
 type Downloader struct {
@@ -21,7 +20,7 @@ type Downloader struct {
 }
 
 func NewDownloader(src, dest string, dialogs, types []string) *Downloader {
-	dataChanel := make(chan common.Attachemt)
+	dataChanel := make(chan contract.Attachemt)
 	wg := sync.WaitGroup{}
 
 	attachemtPb := pb.New(0).Prefix("Attachments")
@@ -52,21 +51,4 @@ func NewDownloader(src, dest string, dialogs, types []string) *Downloader {
 			Wg:    &wg,
 		},
 	}
-}
-
-func (d *Downloader) Run(ctx context.Context) error {
-	pool, err := pb.StartPool(d.dialogsPb, d.dialogPagesPb, d.attachemtPb)
-	if err != nil {
-		return err
-	}
-
-	defer pool.Stop()
-
-	d.wg.Add(2)
-	go d.parser.Parse(ctx)
-	go d.loader.Load(ctx)
-
-	d.wg.Wait()
-
-	return nil
 }

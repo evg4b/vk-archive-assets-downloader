@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/evg4b/vk-archive-assets-downloader/internal"
-	"github.com/evg4b/vk-archive-assets-downloader/internal/common"
+	"github.com/evg4b/vk-archive-assets-downloader/application"
+	"github.com/evg4b/vk-archive-assets-downloader/utils/collections"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 
 	log.SetOutput(logfile)
 
-	app := internal.NewDownloader(*src, *dest, common.SplitNotEmpty(*dialogs), common.SplitNotEmpty(*types))
+	app := application.NewDownloader(*src, *dest, collections.SplitNotEmpty(*dialogs), collections.SplitNotEmpty(*types))
 	err := app.Run(context.TODO())
 	if err != nil {
 		panic(err)

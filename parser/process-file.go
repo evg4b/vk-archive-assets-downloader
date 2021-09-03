@@ -6,14 +6,15 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/evg4b/vk-archive-assets-downloader/internal/common"
+	"github.com/evg4b/vk-archive-assets-downloader/contract"
+	"github.com/evg4b/vk-archive-assets-downloader/utils/files"
 	"golang.org/x/text/encoding/charmap"
 )
 
 func (p *Parser) processFile(dialogName, filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Printf("ERROR: failed to open %s\n", filePath)
+		log.Printf("ERROR: failed to open %s: %x\n", filePath, err)
 		return err
 	}
 
@@ -34,7 +35,7 @@ func (p *Parser) processFile(dialogName, filePath string) error {
 		linkAdders, exist := link.Attr("href")
 		if exist && len(linkAdders) > 0 {
 			log.Printf("Founded attachment %s\n", linkAdders)
-			p.output <- common.Attachemt{
+			p.output <- contract.Attachemt{
 				DialogName: dialogName,
 				Url:        linkAdders,
 				Type:       strings.Trim(description.Text(), " "),
@@ -46,7 +47,7 @@ func (p *Parser) processFile(dialogName, filePath string) error {
 }
 
 func (p *Parser) getDialogName(filePath string) (string, error) {
-	doc, err := common.ParseFile(filePath)
+	doc, err := files.ParseFile(filePath)
 	if err != nil {
 		return "", err
 	}
