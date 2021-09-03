@@ -1,7 +1,6 @@
 package loader
 
 import (
-	"context"
 	"log"
 	"sync"
 
@@ -12,13 +11,14 @@ type Loader struct {
 	Input <-chan contract.Attachemt
 	Dest  string
 	Wg    *sync.WaitGroup
+	log   *log.Logger
 }
 
-func (p *Loader) Load(ctx context.Context) {
-	defer p.Wg.Done()
-	log.Println("Loader started")
-
-	for v := range p.Input {
-		log.Print(v)
+func NewLoader(wg *sync.WaitGroup, dest string, input <-chan contract.Attachemt) *Loader {
+	return &Loader{
+		Input: input,
+		Dest:  dest,
+		Wg:    wg,
+		log:   log.New(log.Writer(), "Loader |", log.Flags()),
 	}
 }

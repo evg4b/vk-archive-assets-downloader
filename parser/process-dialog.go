@@ -1,16 +1,15 @@
 package parser
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 )
 
 func (p *Parser) parseDialog(dirPath string) ([]string, error) {
-	log.Printf("Started working in directory: %s\n", dirPath)
+	p.log.Printf("started working in directory: %s\n", dirPath)
 	paths, err := os.ReadDir(dirPath)
 	if err != nil {
-		log.Printf("ERROR: failed to read dis %s\n", dirPath)
+		p.log.Printf("ERROR: failed to read dir %s\n", dirPath)
 		return nil, err
 	}
 
@@ -21,7 +20,7 @@ func (p *Parser) parseDialog(dirPath string) ([]string, error) {
 		}
 
 		filePath := filepath.Join(dirPath, v.Name())
-		log.Printf("Founded file %s\n", filePath)
+		p.log.Printf("Founded file %s\n", filePath)
 		files = append(files, filePath)
 	}
 

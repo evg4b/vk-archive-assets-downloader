@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"log"
 	"os"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 func (p *Parser) processFile(dialogName, filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Printf("ERROR: failed to open %s: %x\n", filePath, err)
+		p.log.Printf("ERROR: failed to open %s: %x\n", filePath, err)
 		return err
 	}
 
@@ -24,7 +23,7 @@ func (p *Parser) processFile(dialogName, filePath string) error {
 	doc, err := goquery.NewDocumentFromReader(decoder.Reader(file))
 	if err != nil {
 		if err != nil {
-			log.Printf("ERROR: failed to parse file %s\n", filePath)
+			p.log.Printf("ERROR: failed to parse file %s\n", filePath)
 			return err
 		}
 	}
@@ -34,7 +33,7 @@ func (p *Parser) processFile(dialogName, filePath string) error {
 		link := s.Find(".attachment__link").First()
 		linkAdders, exist := link.Attr("href")
 		if exist && len(linkAdders) > 0 {
-			log.Printf("Founded attachment %s\n", linkAdders)
+			p.log.Printf("Founded attachment %s\n", linkAdders)
 			p.output <- contract.Attachemt{
 				DialogName: dialogName,
 				Url:        linkAdders,

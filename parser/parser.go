@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -22,6 +23,7 @@ type Parser struct {
 	dialogsPb     *pb.ProgressBar
 	dialogPagesPb *pb.ProgressBar
 	wg            *sync.WaitGroup
+	log           *log.Logger
 }
 
 func NewParser(wg *sync.WaitGroup, path string, ids []string, output chan<- contract.Attachemt) *Parser {
@@ -30,6 +32,7 @@ func NewParser(wg *sync.WaitGroup, path string, ids []string, output chan<- cont
 		ids:    ids,
 		output: output,
 		wg:     wg,
+		log:    log.New(log.Writer(), "Parser |", log.Flags()),
 	}
 }
 
