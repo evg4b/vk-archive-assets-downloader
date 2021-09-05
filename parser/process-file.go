@@ -28,6 +28,7 @@ func (p *Parser) processFile(dialogName, filePath string) (functionError error) 
 					DialogName: dialogName,
 					Url:        attachemtUrl,
 					Type:       attachemtType,
+					IsLink:     isLink(link) || isVideo(link),
 				}
 
 				p.attachemtPb.SetTotal(int(p.attachemtPb.Total) + 1)

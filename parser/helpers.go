@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -46,4 +47,22 @@ func findDialogPages(dirPath string) (files []string, err error) {
 	}
 
 	return files, nil
+}
+
+func isLink(attachemt *goquery.Selection) bool {
+	attachemtUrl, exist := attachemt.Attr("href")
+	if exist {
+		return !strings.Contains(attachemtUrl, "userapi.com") && !strings.Contains(attachemtUrl, "vk.com/doc")
+	}
+
+	return false
+}
+
+func isVideo(attachemt *goquery.Selection) bool {
+	attachemtUrl, exist := attachemt.Attr("href")
+	if exist {
+		return strings.Contains(attachemtUrl, "vk.com/video")
+	}
+
+	return false
 }
