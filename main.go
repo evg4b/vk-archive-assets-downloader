@@ -15,12 +15,16 @@ func main() {
 	defer logfile.Close()
 
 	log.SetOutput(logfile)
+	log.SetFlags(log.Lmsgprefix | log.LstdFlags)
 
 	app := application.NewDownloader()
 	app.ParseArguments()
 	err := app.Run(context.TODO())
 	if err != nil {
-		panic(err)
+		fmt.Fprintln(os.Stdout)
+		fmt.Fprintf(os.Stdout, "ERROR: %v\n", err)
+		fmt.Fprintln(os.Stdout)
+		os.Exit(1)
 	}
 }
 

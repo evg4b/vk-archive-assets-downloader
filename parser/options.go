@@ -2,7 +2,7 @@ package parser
 
 import (
 	"github.com/cheggaaa/pb"
-	"github.com/evg4b/vk-archive-assets-downloader/utils/collections"
+	"github.com/evg4b/vk-archive-assets-downloader/utils"
 )
 
 func Source(path string) ParserOption {
@@ -37,12 +37,12 @@ func Encoding(encoding string) ParserOption {
 
 func Dialogs(dialogs string) ParserOption {
 	return func(parser *Parser) {
-		parser.ids = collections.SplitNotEmpty(dialogs)
+		parser.ids = utils.SplitNotEmpty(dialogs)
 	}
 }
 
 func Types(types string) ParserOption {
 	return func(parser *Parser) {
-		parser.types = collections.SplitNotEmpty(types)
+		parser.types = utils.SplitNotEmpty(types)
 	}
 }

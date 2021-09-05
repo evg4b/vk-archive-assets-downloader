@@ -18,14 +18,16 @@ func (d *Downloader) Run(ctx context.Context) error {
 		fmt.Fprintf(os.Stdout, "Error information: %v\n", err)
 		log.Print(err)
 	} else {
-		defer pool.Stop()
+		_ = pool.Stop()
 	}
 
 	d.parser.StartParser(ctx)
 	d.loader.StartLoading(ctx)
 
-	d.parser.Wait()
-	d.loader.Wait()
+	err = d.parser.Wait()
+	if err != nil {
+		return err
+	}
 
-	return nil
+	return d.loader.Wait()
 }

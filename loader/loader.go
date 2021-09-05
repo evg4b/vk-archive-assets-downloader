@@ -1,10 +1,9 @@
 package loader
 
 import (
-	"sync"
-
 	"github.com/cheggaaa/pb"
 	"github.com/evg4b/vk-archive-assets-downloader/contract"
+	"golang.org/x/sync/errgroup"
 )
 
 type LoaderOption = func(parser *Loader)
@@ -12,29 +11,27 @@ type LoaderOption = func(parser *Loader)
 type Loader struct {
 	input        <-chan contract.Attachemt
 	dest         string
-	wg           *sync.WaitGroup
 	threadsCount int
 	attachemtPb  *pb.ProgressBar
+	errGroup     *errgroup.Group
 }
 
 func NewLoader(input <-chan contract.Attachemt, options ...LoaderOption) *Loader {
 	loader := &Loader{
-		wg:           &sync.WaitGroup{},
 		input:        input,
 		dest:         "dest",
 		attachemtPb:  pb.New(0),
 		threadsCount: 10,
+		errGroup:     &errgroup.Group{},
 	}
 
-	if options != nil {
-		for _, option := range options {
-			option(loader)
-		}
+	for _, option := range options {
+		option(loader)
 	}
 
 	return loader
 }
 
-func (p *Loader) Wait() {
-	p.wg.Wait()
+func (p *Loader) Wait() error {
+	return p.errGroup.Wait()
 }

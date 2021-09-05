@@ -1,15 +1,17 @@
 package parser
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
-	"sync"
 
 	"github.com/cheggaaa/pb"
 	"github.com/evg4b/vk-archive-assets-downloader/contract"
-	"github.com/evg4b/vk-archive-assets-downloader/utils/collections"
+	"github.com/evg4b/vk-archive-assets-downloader/utils"
+	"golang.org/x/sync/errgroup"
 )
 
 const dir = "messages"
@@ -25,8 +27,8 @@ type Parser struct {
 	attachemtPb   *pb.ProgressBar
 	dialogsPb     *pb.ProgressBar
 	dialogPagesPb *pb.ProgressBar
-	wg            *sync.WaitGroup
-	log           *log.Logger
+	logger        *log.Logger
+	errGroup      *errgroup.Group
 }
 
 func NewParser(output chan<- contract.Attachemt, options ...ParserOption) *Parser {
@@ -35,21 +37,19 @@ func NewParser(output chan<- contract.Attachemt, options ...ParserOption) *Parse
 		encoding: "Windows1251",
 		ids:      []string{},
 		output:   output,
-		wg:       &sync.WaitGroup{},
-		log:      log.New(log.Writer(), "Parser |", log.Flags()),
+		logger:   log.New(log.Writer(), "[parser] ", log.Flags()),
+		errGroup: &errgroup.Group{},
 	}
 
-	if options != nil {
-		for _, option := range options {
-			option(parser)
-		}
+	for _, option := range options {
+		option(parser)
 	}
 
 	return parser
 }
 
-func (p *Parser) Wait() {
-	p.wg.Wait()
+func (p *Parser) Wait() error {
+	return p.errGroup.Wait()
 }
 
 func (p *Parser) load() ([]string, error) {
@@ -61,7 +61,7 @@ func (p *Parser) load() ([]string, error) {
 
 	paths := []string{}
 	for _, folder := range folders {
-		if folder.IsDir() && collections.IncludeOrEmpty(folder.Name(), p.ids) {
+		if folder.IsDir() && utils.IncludeOrEmpty(folder.Name(), p.ids) {
 			paths = append(paths, filepath.Join(folderPath, folder.Name()))
 		}
 	}
@@ -70,4 +70,38 @@ func (p *Parser) load() ([]string, error) {
 	p.dialogsPb.Reset(len(paths))
 
 	return paths, nil
+}
+
+func (p *Parser) StartParser(parentConext context.Context) {
+	p.errGroup, _ = errgroup.WithContext(parentConext)
+	p.errGroup.Go(p.parse)
+}
+
+func (p *Parser) parse() error {
+	defer close(p.output)
+
+	p.logger.Println("parser started")
+
+	dirs, err := p.load()
+	if err != nil {
+		p.logger.Printf("failed to load archive: %v", err)
+
+		return fmt.Errorf("failed to load archive: %v", err)
+	}
+
+	p.logger.Printf("founded %d dialogs\n", len(dirs))
+
+	p.dialogsPb.Finish()
+	p.dialogsPb.Reset(len(dirs))
+
+	for _, dir := range dirs {
+		err := p.processDialog(dir)
+		if err != nil {
+			p.logger.Printf("failed to parse dialog %s: %x", dir, err)
+
+			return fmt.Errorf("failed to process dialog %s: %v", dir, err)
+		}
+	}
+
+	return nil
 }

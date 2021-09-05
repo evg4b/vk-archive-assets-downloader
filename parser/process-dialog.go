@@ -1,30 +1,44 @@
 package parser
 
 import (
-	"os"
-	"path/filepath"
+	"fmt"
+
+	"github.com/evg4b/vk-archive-assets-downloader/utils"
 )
 
-func (p *Parser) parseDialog(dirPath string) (files []string, err error) {
-	p.log.Printf("started working in directory: %s\n", dirPath)
+func (p *Parser) processDialog(dir string) (functionError error) {
+	defer utils.PanicInterceptor(&functionError)
 
-	paths, err := os.ReadDir(dirPath)
+	files, err := findDialogPages(dir)
 	if err != nil {
-		p.log.Printf("ERROR: failed to read dir %s\n", dirPath)
-		return nil, err
+		p.logger.Printf("error: failed to read dialog %s\n", dir)
+		return err
 	}
 
-	files = []string{}
-	for _, v := range paths {
-		if v.IsDir() {
-			continue
+	p.logger.Printf("founded %d pages in dialog %s\n", len(files), dir)
+
+	dialogName, err := p.getDialogName(files[0])
+	if err != nil {
+		p.logger.Printf("error: failed to read dis %s\n", dir)
+		return err
+	}
+
+	p.logger.Printf("founded %s dialog name for path %s", dialogName, dir)
+
+	p.dialogPagesPb.Prefix(fmt.Sprintf("Dialog with %s", dialogName))
+	p.dialogPagesPb.Finish()
+	p.dialogPagesPb.Reset(len(files))
+
+	for _, filePath := range files {
+		err := p.processFile(dialogName, filePath)
+		if err != nil {
+			return err
 		}
 
-		filePath := filepath.Join(dirPath, v.Name())
-		files = append(files, filePath)
+		p.dialogPagesPb.Increment()
 	}
 
-	p.log.Printf("Founded %d pages in dialog %s\n", len(files), dirPath)
+	p.dialogsPb.Increment()
 
-	return files, nil
+	return nil
 }

@@ -21,18 +21,18 @@ func (d *Downloader) ParseArguments() {
 
 	flag.Parse()
 
-	log.Printf("Source: %s, Destination: %s", *src, *dest)
+	log.Printf("source: %s, destination: %s", *src, *dest)
 	if dialogs != nil && len(*dialogs) > 0 {
-		log.Printf("Dialogs: %s", *dialogs)
+		log.Printf("dialogs: %s", *dialogs)
 	}
 
 	if types != nil && len(*types) > 0 {
-		log.Printf("Types: %s", *types)
+		log.Printf("types: %s", *types)
 	}
 
-	log.Printf("Encoding: %s", *encoding)
-	log.Printf("Pool size: %d", *poolSize)
-	log.Printf("Threads count: %d", *threadsCount)
+	log.Printf("encoding: %s", *encoding)
+	log.Printf("pool size: %d", *poolSize)
+	log.Printf("threads count: %d", *threadsCount)
 
 	dataChanel := make(chan contract.Attachemt, *poolSize)
 

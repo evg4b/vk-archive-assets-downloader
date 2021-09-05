@@ -1,12 +1,14 @@
-package collections
+package utils
+
+import "strings"
 
 func IncludeOrEmpty(a string, list []string) bool {
-	if list == nil || len(list) == 0 {
+	if len(list) == 0 {
 		return true
 	}
 
 	for _, b := range list {
-		if b == a {
+		if strings.EqualFold(a, b) {
 			return true
 		}
 	}

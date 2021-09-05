@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -25,5 +26,24 @@ func parseFile(filePath, encodingName string) (*goquery.Document, error) {
 		return doc, nil
 	}
 
-	return nil, fmt.Errorf("Unsupported encoding %s", encodingName)
+	return nil, fmt.Errorf("unsupported encoding %s", encodingName)
+}
+
+func findDialogPages(dirPath string) (files []string, err error) {
+	paths, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, err
+	}
+
+	files = []string{}
+	for _, v := range paths {
+		if v.IsDir() {
+			continue
+		}
+
+		filePath := filepath.Join(dirPath, v.Name())
+		files = append(files, filePath)
+	}
+
+	return files, nil
 }
