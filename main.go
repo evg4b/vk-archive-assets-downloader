@@ -2,33 +2,22 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/evg4b/vk-archive-assets-downloader/application"
-	"github.com/evg4b/vk-archive-assets-downloader/utils/collections"
 )
 
 func main() {
-	src := flag.String("src", "archive", "path to archive folder")
-	dialogs := flag.String("dialogs", "", "coma separeted dialogs ids")
-	types := flag.String("types", "", "coma separeted attachments types")
-	dest := flag.String("dest", "dest", "destination folder")
-	encoding := flag.String("encoding", "Windows1251", "destination folder")
-
-	flag.Parse()
-
 	logfile := openLogFile()
 	defer logfile.Close()
 
 	log.SetOutput(logfile)
 
-	app := application.NewDownloader(*src, *dest, collections.SplitNotEmpty(*dialogs), collections.SplitNotEmpty(*types)).
-		WithEncoding(*encoding)
-
+	app := application.NewDownloader()
+	app.ParseArguments()
 	err := app.Run(context.TODO())
 	if err != nil {
 		panic(err)

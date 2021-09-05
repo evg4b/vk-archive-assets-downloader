@@ -20,6 +20,8 @@
 | -types | `N/A` |  Comma separated string with the attachment type name. A type must be specified in the language of the archive. Example `-types Photo,Video` for english and `-types Фотография,Видеозапись` for russian |
 | -dest | `./dest` | Path to destination folder. |
 | -encoding | `Windows1251` | Archive source file encoding. [The following encodings](#supported encodings) are supported. |
+| -pool | 1000 | Length of attachments queue |
+| -threads | *Number of logical CPUs usable by the current process* | Number of threads to download attachments |
 
 ## Supported encodings
 - `CodePage037` is this IBM Code Page 037 encoding.

@@ -1,4 +1,4 @@
-package files
+package parser
 
 import (
 	"golang.org/x/text/encoding"

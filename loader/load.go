@@ -2,18 +2,30 @@ package loader
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"time"
 )
 
 func (p *Loader) StartLoading(ctx context.Context) {
-	p.wg.Add(1)
-	go p.loadingThread(ctx)
+	p.wg.Add(p.threadsCount)
+	for i := 0; i < p.threadsCount; i++ {
+		go p.loadingThread(i, ctx)
+	}
 }
 
-func (p *Loader) loadingThread(ctx context.Context) {
+func (p *Loader) loadingThread(index int, ctx context.Context) {
 	defer p.wg.Done()
-	p.log.Println("Loader started")
+	logger := getLogger(index)
+	logger.Println("Loading thread started")
 
 	for v := range p.input {
-		p.log.Printf("%s:%s %s", v.DialogName, v.Type, v.Url)
+		logger.Printf("%s:%s %s", v.DialogName, v.Type, v.Url)
+		p.attachemtPb.Increment()
+		time.Sleep(200 * time.Millisecond)
 	}
+}
+
+func getLogger(index int) *log.Logger {
+	return log.New(log.Writer(), fmt.Sprintf("Loader thread %v |", index+1), log.Flags())
 }

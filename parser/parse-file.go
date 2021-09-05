@@ -1,4 +1,4 @@
-package files
+package parser
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func ParseFile(filePath, encodingName string) (*goquery.Document, error) {
+func parseFile(filePath, encodingName string) (*goquery.Document, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err

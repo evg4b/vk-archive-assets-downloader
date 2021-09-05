@@ -10,15 +10,17 @@ import (
 	"github.com/cheggaaa/pb"
 	"github.com/evg4b/vk-archive-assets-downloader/contract"
 	"github.com/evg4b/vk-archive-assets-downloader/utils/collections"
-	"github.com/evg4b/vk-archive-assets-downloader/utils/progressbar"
 )
 
 const dir = "messages"
+
+type ParserOption = func(parser *Parser)
 
 type Parser struct {
 	path          string
 	encoding      string
 	ids           []string
+	types         []string
 	output        chan<- contract.Attachemt
 	attachemtPb   *pb.ProgressBar
 	dialogsPb     *pb.ProgressBar
@@ -27,37 +29,27 @@ type Parser struct {
 	log           *log.Logger
 }
 
-func NewParser(path string, ids []string, output chan<- contract.Attachemt) *Parser {
-	return &Parser{
-		path:     path,
+func NewParser(output chan<- contract.Attachemt, options ...ParserOption) *Parser {
+	parser := &Parser{
+		path:     "src",
 		encoding: "Windows1251",
-		ids:      ids,
+		ids:      []string{},
 		output:   output,
 		wg:       &sync.WaitGroup{},
 		log:      log.New(log.Writer(), "Parser |", log.Flags()),
 	}
+
+	if options != nil {
+		for _, option := range options {
+			option(parser)
+		}
+	}
+
+	return parser
 }
 
 func (p *Parser) Wait() {
 	p.wg.Wait()
-}
-
-func (p *Parser) WithAttachemtProgressBar(progressBar *pb.ProgressBar) *Parser {
-	p.attachemtPb = progressBar
-
-	return p
-}
-
-func (p *Parser) WithDialogsProgressBar(progressBar *pb.ProgressBar) *Parser {
-	p.dialogsPb = progressBar
-
-	return p
-}
-
-func (p *Parser) WithEncoding(encoding string) *Parser {
-	p.encoding = encoding
-
-	return p
 }
 
 func (p *Parser) load() ([]string, error) {
@@ -74,13 +66,8 @@ func (p *Parser) load() ([]string, error) {
 		}
 	}
 
-	progressbar.InitProgressBar(p.dialogsPb, len(paths))
+	p.dialogsPb.Finish()
+	p.dialogsPb.Reset(len(paths))
 
 	return paths, nil
-}
-
-func (p *Parser) WithDialogPagesProgressBar(progressBar *pb.ProgressBar) *Parser {
-	p.dialogPagesPb = progressBar
-
-	return p
 }

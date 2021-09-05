@@ -2,8 +2,7 @@ package parser
 
 import (
 	"context"
-
-	"github.com/evg4b/vk-archive-assets-downloader/utils/progressbar"
+	"fmt"
 )
 
 func (p *Parser) StartParser(ctx context.Context) {
@@ -24,22 +23,33 @@ func (p *Parser) parse(ctx context.Context) {
 
 	p.log.Printf("Founded %d dialogs\n", len(dirs))
 
-	for _, dirPath := range dirs {
-		files, err := p.parseDialog(dirPath)
+	p.dialogsPb.Finish()
+	p.dialogsPb.Reset(len(dirs))
+
+	for _, dir := range dirs {
+		files, err := p.parseDialog(dir)
 		if err != nil {
-			p.log.Printf("ERROR: failed to read dis %s\n", dirPath)
+			p.log.Printf("ERROR: failed to read dialog %s\n", dir)
 			continue
 		}
 
-		progressbar.InitProgressBar(p.dialogPagesPb, len(files))
 		dialogName, err := p.getDialogName(files[0])
 		if err != nil {
-			p.log.Printf("ERROR: failed to read dis %s\n", dirPath)
+			p.log.Printf("ERROR: failed to read dis %s\n", dir)
 			continue
 		}
+
+		p.log.Printf("Founded %s dialog name for path %s", dialogName, dir)
+
+		p.dialogPagesPb.Prefix(fmt.Sprintf("Dialog with %s", dialogName))
+		p.dialogPagesPb.Finish()
+		p.dialogPagesPb.Reset(len(files))
 
 		for _, filePath := range files {
 			p.processFile(dialogName, filePath)
+			p.dialogPagesPb.Increment()
 		}
+
+		p.dialogsPb.Increment()
 	}
 }
