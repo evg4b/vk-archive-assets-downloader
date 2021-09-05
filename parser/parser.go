@@ -17,6 +17,7 @@ const dir = "messages"
 
 type Parser struct {
 	path          string
+	encoding      string
 	ids           []string
 	output        chan<- contract.Attachemt
 	attachemtPb   *pb.ProgressBar
@@ -28,11 +29,12 @@ type Parser struct {
 
 func NewParser(wg *sync.WaitGroup, path string, ids []string, output chan<- contract.Attachemt) *Parser {
 	return &Parser{
-		path:   path,
-		ids:    ids,
-		output: output,
-		wg:     wg,
-		log:    log.New(log.Writer(), "Parser |", log.Flags()),
+		path:     path,
+		encoding: "Windows1251",
+		ids:      ids,
+		output:   output,
+		wg:       wg,
+		log:      log.New(log.Writer(), "Parser |", log.Flags()),
 	}
 }
 
@@ -48,8 +50,8 @@ func (p *Parser) WithDialogsProgressBar(progressBar *pb.ProgressBar) *Parser {
 	return p
 }
 
-func (p *Parser) WithDialogPagesProgressBar(progressBar *pb.ProgressBar) *Parser {
-	p.dialogPagesPb = progressBar
+func (p *Parser) WithEncoding(encoding string) *Parser {
+	p.encoding = encoding
 
 	return p
 }
@@ -71,4 +73,10 @@ func (p *Parser) load() ([]string, error) {
 	progressbar.InitProgressBar(p.dialogsPb, len(paths))
 
 	return paths, nil
+}
+
+func (p *Parser) WithDialogPagesProgressBar(progressBar *pb.ProgressBar) *Parser {
+	p.dialogPagesPb = progressBar
+
+	return p
 }

@@ -17,6 +17,7 @@ func main() {
 	dialogs := flag.String("dialogs", "", "coma separeted dialogs ids")
 	types := flag.String("types", "", "coma separeted attachments types")
 	dest := flag.String("dest", "dest", "destination folder")
+	encoding := flag.String("encoding", "Windows1251", "destination folder")
 
 	flag.Parse()
 
@@ -25,7 +26,9 @@ func main() {
 
 	log.SetOutput(logfile)
 
-	app := application.NewDownloader(*src, *dest, collections.SplitNotEmpty(*dialogs), collections.SplitNotEmpty(*types))
+	app := application.NewDownloader(*src, *dest, collections.SplitNotEmpty(*dialogs), collections.SplitNotEmpty(*types)).
+		WithEncoding(*encoding)
+
 	err := app.Run(context.TODO())
 	if err != nil {
 		panic(err)
@@ -33,7 +36,7 @@ func main() {
 }
 
 func openLogFile() *os.File {
-	logfile := fmt.Sprintf("%s.log", time.Now().Format("20060102150405"))
+	logfile := fmt.Sprintf("vk-archive-assets-downloader-%s.log", time.Now().Format("20060102150405"))
 	file, err := os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)

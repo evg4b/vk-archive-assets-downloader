@@ -52,3 +52,9 @@ func NewDownloader(src, dest string, dialogs, types []string) *Downloader {
 		},
 	}
 }
+
+func (p *Downloader) WithEncoding(encoding string) *Downloader {
+	_ = p.parser.WithEncoding(encoding)
+
+	return p
+}
