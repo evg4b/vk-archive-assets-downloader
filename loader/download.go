@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/evg4b/vk-archive-assets-downloader/contract"
 	"github.com/evg4b/vk-archive-assets-downloader/utils"
 )
@@ -55,6 +56,17 @@ func downloadToFile(logger *log.Logger, dir, filename, url string) (string, erro
 					filename = fmt.Sprintf("%s%s", filename, extentions[len(extentions)-1])
 					logger.Printf("Automatically detect file extension for file %s\n", filename)
 				}
+			}
+		}
+
+		if filepath.Ext(filename) == ".html" || filepath.Ext(filename) == ".htm" {
+			document, err := goquery.NewDocumentFromResponse(resp)
+			if err != nil {
+				return "", fmt.Errorf("failed to download file %s: %v", url, err)
+			}
+
+			if document.Find("#page_layout #content #msg_back_button").Length() != 0 {
+				return "", fmt.Errorf("failed to download file %s: not found", url)
 			}
 		}
 
