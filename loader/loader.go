@@ -8,17 +8,21 @@ import (
 )
 
 type Loader struct {
-	Input <-chan contract.Attachemt
-	Dest  string
-	Wg    *sync.WaitGroup
+	input <-chan contract.Attachemt
+	dest  string
+	wg    *sync.WaitGroup
 	log   *log.Logger
 }
 
-func NewLoader(wg *sync.WaitGroup, dest string, input <-chan contract.Attachemt) *Loader {
+func NewLoader(dest string, input <-chan contract.Attachemt) *Loader {
 	return &Loader{
-		Input: input,
-		Dest:  dest,
-		Wg:    wg,
+		wg:    &sync.WaitGroup{},
+		input: input,
+		dest:  dest,
 		log:   log.New(log.Writer(), "Loader |", log.Flags()),
 	}
+}
+
+func (p *Loader) Wait() {
+	p.wg.Wait()
 }

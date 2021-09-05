@@ -6,7 +6,12 @@ import (
 	"github.com/evg4b/vk-archive-assets-downloader/utils/progressbar"
 )
 
-func (p *Parser) Parse(ctx context.Context) {
+func (p *Parser) StartParser(ctx context.Context) {
+	p.wg.Add(1)
+	go p.parse(ctx)
+}
+
+func (p *Parser) parse(ctx context.Context) {
 	defer p.wg.Done()
 	defer close(p.output)
 

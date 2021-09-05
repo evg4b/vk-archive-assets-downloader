@@ -2,23 +2,21 @@ package application
 
 import (
 	"context"
-
-	"github.com/cheggaaa/pb"
 )
 
 func (d *Downloader) Run(ctx context.Context) error {
-	pool, err := pb.StartPool(d.dialogsPb, d.dialogPagesPb, d.attachemtPb)
-	if err != nil {
-		return err
-	}
+	// pool, err := pb.StartPool(d.dialogsPb, d.dialogPagesPb, d.attachemtPb)
+	// if err != nil {
+	// 	return err
+	// }
 
-	defer pool.Stop()
+	// defer pool.Stop()
 
-	d.wg.Add(2)
-	go d.parser.Parse(ctx)
-	go d.loader.Load(ctx)
+	d.parser.StartParser(ctx)
+	d.loader.StartLoading(ctx)
 
-	d.wg.Wait()
+	d.parser.Wait()
+	d.loader.Wait()
 
 	return nil
 }

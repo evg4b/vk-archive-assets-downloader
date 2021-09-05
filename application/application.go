@@ -21,7 +21,6 @@ type Downloader struct {
 
 func NewDownloader(src, dest string, dialogs, types []string) *Downloader {
 	dataChanel := make(chan contract.Attachemt)
-	wg := sync.WaitGroup{}
 
 	attachemtPb := pb.New(0).Prefix("Attachments")
 	dialogsPb := pb.New(0).Prefix("Dialogs")
@@ -37,19 +36,14 @@ func NewDownloader(src, dest string, dialogs, types []string) *Downloader {
 	log.Println()
 
 	return &Downloader{
-		wg:            &wg,
 		attachemtPb:   attachemtPb,
 		dialogsPb:     dialogsPb,
 		dialogPagesPb: dialogPagesPb,
-		parser: parser.NewParser(&wg, src, dialogs, dataChanel).
+		parser: parser.NewParser(src, dialogs, dataChanel).
 			WithAttachemtProgressBar(attachemtPb).
 			WithDialogPagesProgressBar(dialogPagesPb).
 			WithDialogsProgressBar(dialogsPb),
-		loader: &loader.Loader{
-			Input: dataChanel,
-			Dest:  dest,
-			Wg:    &wg,
-		},
+		loader: loader.NewLoader(dest, dataChanel),
 	}
 }
 

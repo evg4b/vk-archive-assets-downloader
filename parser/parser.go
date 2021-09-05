@@ -27,15 +27,19 @@ type Parser struct {
 	log           *log.Logger
 }
 
-func NewParser(wg *sync.WaitGroup, path string, ids []string, output chan<- contract.Attachemt) *Parser {
+func NewParser(path string, ids []string, output chan<- contract.Attachemt) *Parser {
 	return &Parser{
 		path:     path,
 		encoding: "Windows1251",
 		ids:      ids,
 		output:   output,
-		wg:       wg,
+		wg:       &sync.WaitGroup{},
 		log:      log.New(log.Writer(), "Parser |", log.Flags()),
 	}
+}
+
+func (p *Parser) Wait() {
+	p.wg.Wait()
 }
 
 func (p *Parser) WithAttachemtProgressBar(progressBar *pb.ProgressBar) *Parser {
