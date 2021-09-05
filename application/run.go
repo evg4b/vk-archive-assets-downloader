@@ -18,7 +18,7 @@ func (d *Downloader) Run(ctx context.Context) error {
 		fmt.Fprintf(os.Stdout, "Error information: %v\n", err)
 		log.Print(err)
 	} else {
-		_ = pool.Stop()
+		defer func() { _ = pool.Stop() }()
 	}
 
 	d.parser.StartParser(ctx)
