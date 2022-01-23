@@ -1,5 +1,7 @@
 # vk-archive-assets-downloader
 
+Utility for downloading attached files from the [VKontakte data archive](https://vk.com/data_protection?section=rules).
+
 ## Quick start:
 
 1. Request and download archive on [this page](https://vk.com/data_protection?section=rules)
@@ -65,4 +67,3 @@
 - `Windows1257` is this Windows 1257 encoding.
 - `Windows1258` is this Windows 1258 encoding.
 - `Windows874` is this Windows 874 encoding.
-- `XUserDefined` is this X-User-Defined encoding.
