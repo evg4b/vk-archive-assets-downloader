@@ -23,6 +23,12 @@ func DialogsProgressBar(progressBar *pb.ProgressBar) ParserOption {
 	}
 }
 
+func AlbumsProgressBar(progressBar *pb.ProgressBar) ParserOption {
+	return func(parser *Parser) {
+		parser.albumsPb = progressBar
+	}
+}
+
 func DialogPagesProgressBar(progressBar *pb.ProgressBar) ParserOption {
 	return func(parser *Parser) {
 		parser.dialogPagesPb = progressBar
@@ -38,6 +44,12 @@ func Encoding(encoding string) ParserOption {
 func Dialogs(dialogs string) ParserOption {
 	return func(parser *Parser) {
 		parser.ids = utils.SplitNotEmpty(dialogs)
+	}
+}
+
+func Albums(albums string) ParserOption {
+	return func(parser *Parser) {
+		parser.albumsIds = utils.SplitNotEmpty(albums)
 	}
 }
 

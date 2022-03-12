@@ -13,6 +13,7 @@ import (
 func (d *Downloader) ParseArguments() {
 	src := flag.String("src", "archive", "path to archive folder")
 	dialogs := flag.String("dialogs", "", "coma separeted dialogs ids")
+	albums := flag.String("albums", "", "coma separeted albums ids")
 	types := flag.String("types", "", "coma separeted attachments types")
 	dest := flag.String("dest", "dest", "destination folder")
 	encoding := flag.String("encoding", "Windows1251", "destination folder")
@@ -24,6 +25,10 @@ func (d *Downloader) ParseArguments() {
 	log.Printf("source: %s, destination: %s", *src, *dest)
 	if dialogs != nil && len(*dialogs) > 0 {
 		log.Printf("dialogs: %s", *dialogs)
+	}
+
+	if albums != nil && len(*albums) > 0 {
+		log.Printf("albums: %s", *albums)
 	}
 
 	if types != nil && len(*types) > 0 {
@@ -41,10 +46,12 @@ func (d *Downloader) ParseArguments() {
 		parser.Source(*src),
 		parser.Encoding(*encoding),
 		parser.Dialogs(*dialogs),
+		parser.Albums(*albums),
 		parser.Types(*types),
 		parser.AttachemtProgressBar(d.attachemtPb),
 		parser.DialogPagesProgressBar(d.dialogPagesPb),
 		parser.DialogsProgressBar(d.dialogsPb),
+		parser.AlbumsProgressBar(d.albumsPb),
 	)
 
 	d.loader = loader.NewLoader(
