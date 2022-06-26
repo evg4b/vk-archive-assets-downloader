@@ -19,9 +19,18 @@ func getFilePath(dest string, attachemt contract.Attachemt) (string, string, err
 	if err != nil {
 		return "", "", err
 	}
-
 	fileName := filepath.Base(parserUrl.Path)
-	directoryPath := filepath.Join(dest, attachemt.DialogName, attachemt.Type)
+	var directoryPath string
+
+	switch attachemt.Section {
+	case contract.Dialog:
+		directoryPath = filepath.Join(dest, attachemt.Name, attachemt.Type)
+	case contract.Album:
+		directoryPath = filepath.Join(dest, "Album["+attachemt.Name+"]")
+	default:
+		return "", "", fmt.Errorf("unknown attachmentType %d", attachemt.Section)
+	}
+
 	err = os.MkdirAll(directoryPath, os.ModePerm)
 	if err != nil {
 		return "", "", err

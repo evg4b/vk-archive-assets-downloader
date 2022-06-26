@@ -25,10 +25,11 @@ func (p *Parser) processFile(dialogName, filePath string) (functionError error) 
 				p.logger.Printf("founded `%s` in dialog `%s`: %s\n", attachemtType, dialogName, attachemtUrl)
 
 				p.output <- contract.Attachemt{
-					DialogName: dialogName,
-					Url:        attachemtUrl,
-					Type:       attachemtType,
-					IsLink:     isLink(link) || isVideo(link),
+					Section: contract.Dialog,
+					Name:    dialogName,
+					Url:     attachemtUrl,
+					Type:    attachemtType,
+					IsLink:  isLink(link) || isVideo(link),
 				}
 
 				p.attachemtPb.SetTotal(int(p.attachemtPb.Total) + 1)

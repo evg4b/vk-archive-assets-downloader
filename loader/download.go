@@ -18,7 +18,8 @@ func (p *Loader) downloadFile(logger *log.Logger, attachemt contract.Attachemt) 
 	defer utils.PanicInterceptor(&downloadError)
 	defer p.attachemtPb.Increment()
 
-	logger.Printf("started downloading %s:%s %s", attachemt.DialogName, attachemt.Type, attachemt.Url)
+	sectionName := contract.AttachmentSectionNames[attachemt.Section]
+	logger.Printf("started downloading %s %s:%s %s", sectionName, attachemt.Name, attachemt.Type, attachemt.Url)
 	dir, filename, err := getFilePath(p.dest, attachemt)
 	if err != nil {
 		return fmt.Errorf("failed create path to attachemt %s: %v", attachemt.Url, err)
@@ -35,7 +36,7 @@ func (p *Loader) downloadFile(logger *log.Logger, attachemt contract.Attachemt) 
 		return fmt.Errorf("failed download attachemt %s: %v", attachemt.Url, err)
 	}
 
-	logger.Printf("attachemt  %s:%s %s downloaded to file %s", attachemt.DialogName, attachemt.Type, attachemt.Url, path)
+	logger.Printf("attachemt  %s:%s %s downloaded to file %s", attachemt.Name, attachemt.Type, attachemt.Url, path)
 
 	return nil
 }
