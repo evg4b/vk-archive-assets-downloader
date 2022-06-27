@@ -128,8 +128,6 @@ func (p *Parser) parse() error {
 	}
 	p.albumsPb.Finish()
 
-	return nil
-
 	dirs, err := p.loadDialogs()
 	if err != nil {
 		p.logger.Printf("failed to load archive: %v", err)
